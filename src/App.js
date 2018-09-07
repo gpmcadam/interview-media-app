@@ -1,18 +1,56 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+
 import './App.css';
+import LoginForm from './LoginForm'
+import { logOut, verifyToken } from './auth'
 
 class App extends Component {
+
+  state = {
+    loggedIn: false,
+    user: null
+  }
+
+  componentDidMount() {
+    verifyToken()
+      .then((token) => {
+        this.setState({
+          loggedIn: true,
+          user: token.user.name
+        })
+      })
+      .catch(() => {
+        this.setState({
+          loggedIn: false,
+          user: null
+        })
+      })
+  }
+
+  logOut = () => {
+    logOut()
+      .then(() => {
+        this.setState({
+          loggedIn: false,
+          user: null
+        })
+      })
+  }
+
+  onLoginSuccess = (token) => {
+    this.setState({
+      loggedIn: true,
+      user: token.user.name
+    })
+  }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
+      <div className="app">
+        <header className="app__header">
+          <h1 className="app__title">Media Manager</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        {this.state.loggedIn ? <div>Welcome back, {this.state.user} <button onClick={this.logOut}>Log Out</button></div> : <LoginForm onLoginSuccess={this.onLoginSuccess} />}
       </div>
     );
   }
